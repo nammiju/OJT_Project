@@ -1,14 +1,24 @@
 package com.example.gpstracking
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
+import android.location.LocationManager
 import android.os.Binder
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
+import com.example.gpstracking.MainActivity.Companion.TAG
 import com.example.gpstracking.MainActivity.Companion.showMapFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Granularity
@@ -50,19 +60,19 @@ class GpsTrackingService : Service() {
     var initiateLocationRequest: Boolean by printDelegate(false)
 
     // delegate: 실시간으로 갱신되는 값만 기억하는 livedata와 달리 직전값과 바뀐값을 기억함
-    private fun printDelegate(init: Boolean) =
-        Delegates.observable(init) { _, old, new ->
-            if (old != new) { // 계속 false이다가 시작버튼이 눌리면 true바뀌면 실행
-                when (new) {
-                    true -> { // 바뀐값이 true 이면
-                        showMapFragment() // MainActivity의 companion object에 있는 프래그먼트 함수 실행함.
-                    }
-                    false -> {
-                        Log.i(MainActivity.TAG, "not initiate!! Location is Null")
-                    }
+    private fun printDelegate(init: Boolean) = Delegates.observable(init) { _, old, new ->
+        if (old != new) { // 계속 false이다가 시작버튼이 눌리면 true바뀌면 실행
+            when (new) {
+                true -> { // 바뀐값이 true 이면
+                    showMapFragment() // MainActivity의 companion object에 있는 프래그먼트 함수 실행함.
+                }
+
+                false -> {
+                    Log.i(MainActivity.TAG, "not initiate!! Location is Null")
                 }
             }
         }
+    }
 
     companion object {
         var lastLatLng: Location? = null
@@ -74,7 +84,7 @@ class GpsTrackingService : Service() {
     private val myBinder = MyLocalBinder()
 
     inner class MyLocalBinder : Binder() {
-        fun getService() : GpsTrackingService {
+        fun getService(): GpsTrackingService {
             return this@GpsTrackingService
         }
     }
@@ -85,17 +95,56 @@ class GpsTrackingService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.i("미주바보", "onCreate")
+        Log.i(TAG, "onCreate")
+
+        // 노티 띄우기
+        startForeground(1, createNotificationBuilder())
+
+        // gps 연결 상태를 인식하는 리시버
+        addReceiver()
+
+    }
+
+    private fun checkGpsConnection(): Boolean {
+        val locationManager =
+            applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+    private fun addReceiver() {
+        val receiver: BroadcastReceiver = GpsReceiver()
+        val filter = IntentFilter()
+        filter.addAction("android.location.PROVIDERS_CHANGED")
+
+        registerReceiver(receiver, filter)
+    }
+
+    private fun notificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val nc =
+                NotificationChannel("miju", "mijuChannel", NotificationManager.IMPORTANCE_DEFAULT)
+            val nm = getSystemService(NotificationManager::class.java)
+
+            nm.createNotificationChannel(nc)
+        } else {
+            Log.i(TAG, "not support notification")
+        }
+    }
+
+    private fun createNotificationBuilder(): Notification {
+        notificationChannel()
+        val nc: Notification =
+            NotificationCompat.Builder(this, "miju").setContentTitle("gpsTrackingNoti")
+                .setSmallIcon(R.mipmap.ic_launcher_round).build()
+        return nc
     }
 
     fun requestFusedClient() {
         try {
-            Log.i("미주바보", "requestFusedClient")
+            Log.i(TAG, "requestFusedClient")
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
             fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.myLooper()
+                locationRequest, locationCallback, Looper.myLooper()
             )
         } catch (e: SecurityException) {
 

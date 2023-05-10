@@ -6,9 +6,11 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
@@ -45,10 +47,15 @@ class MainActivity : AppCompatActivity() {
 
         // fragment 띄우기
         fun showMapFragment() {
+            activity?.binding?.mainViewGroup?.visibility = View.GONE
+//            activity?.binding?.progressBarText?.text = activity?.getText(R.string.miju_text)
             val fragment: Fragment = FragmentMap()
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.frame_layout, fragment)?.commit()
         }
+
+        const val START_FOREGROUND = "start foreground"
+        const val STOP_FOREGROUND = "stop foreground"
     }
 
     // 서비스 변수
