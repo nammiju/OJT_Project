@@ -18,8 +18,7 @@ class GpsReceiver : BroadcastReceiver() {
                 val locationManager = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
                 val gpsState = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                     Log.i(TAG, "gpsState : $gpsState")
-                if (!gpsState) {
-// GPS가 꺼져있는 경우 설정 화면으로 이동
+                if (!gpsState) { // GPS가 꺼져있는 경우 설정 화면으로 이동
                     val settings = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(settings)

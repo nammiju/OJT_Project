@@ -57,6 +57,7 @@ class GpsTrackingService : Service() {
         }
     }
 
+    // 위치 요청이 초기화 되었는지를 나타내는 boolean 값, 값이 변경될 때 마다 printDelegate를 통해 지도 프레그먼트를 표시
     var initiateLocationRequest: Boolean by printDelegate(false)
 
     // delegate: 실시간으로 갱신되는 값만 기억하는 livedata와 달리 직전값과 바뀐값을 기억함
@@ -150,4 +151,5 @@ class GpsTrackingService : Service() {
 
         }
     }
+
 }

@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSION_REQUEST_CODE = 100
 
     companion object {
-        var TAG = "미주바보"
+        var TAG = "MIJU_GPS"
         var changeLocation: Location? = null // 마지막으로 찍히는 위치값을 담을 변수
         var activity: MainActivity? = null
 
@@ -56,6 +56,8 @@ class MainActivity : AppCompatActivity() {
 
         const val START_FOREGROUND = "start foreground"
         const val STOP_FOREGROUND = "stop foreground"
+
+        var gpsData = DialogData()
     }
 
     // 서비스 변수

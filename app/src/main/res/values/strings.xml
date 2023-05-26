@@ -2,5 +2,6 @@
     <string name="app_name">GpsTracking</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="miju_text">미주천재</string>
+    <string name="distance_time">%d분 %d초</string>
+    <string name="distance_meter">%.4fM</string>
 </resources>
